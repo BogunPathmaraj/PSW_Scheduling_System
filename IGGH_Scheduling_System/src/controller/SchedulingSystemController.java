@@ -1,34 +1,28 @@
-package application;
+package controller;
 
 import java.awt.BorderLayout;
-import java.awt.Insets;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
+import javax.swing.RowFilter.Entry;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingNode;
-import javafx.fxml.FXMLLoader;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -36,21 +30,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import java.sql.*;
 
-public class Main extends Application
+public class SchedulingSystemController extends Application
 {
 
-	public static void main(String[] args) 
-	{
-		launch(args);
-	}
- 
-	
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void start(Stage primaryStage) throws Exception 
@@ -68,10 +54,11 @@ public class Main extends Application
 		
 		//Sub-Menu Items
 		MenuItem staffList = new MenuItem("View StaffList");
+		MenuItem addStaff = new MenuItem("Add Staff");
 		MenuItem schedule = new MenuItem("View Schedule");
 		
 		//Menu Buttons
-		MenuButton employeeListBtn = new MenuButton("Employee List", null, staffList);
+		MenuButton employeeListBtn = new MenuButton("Employee List", null, staffList,addStaff);
 		MenuButton scheduleBtn = new MenuButton("Schedule", null, schedule);
 		
 		tool.getItems().addAll(employeeListBtn, scheduleBtn);
@@ -199,15 +186,17 @@ public class Main extends Application
 		Scene main = new Scene(border,1000,500);
 
 	 
-		//Scene e = new Scene(root);
+		VBox v1 = new VBox();
+		Button test = new Button("Testing");
+		v1.getChildren().add(test);
+		Scene scene2 = new Scene(v1);
 		
 		//ADD SCENE TO STAGE
 		primaryStage.setScene(main);
 		primaryStage.setTitle("PSW Scheduling System");
 		//primaryStage.setResizable(false);
 		primaryStage.show();
-		
- 		
+		 
 		
 		//Create Staff Objects to Populate 
 		 
@@ -346,6 +335,37 @@ public class Main extends Application
 			
 		});
 		
+		 
+		{
+			try {
+			model.setRowCount(0);
+			
+			Statement stmt = conn.createStatement();
+	
+			
+			//Create SQL Query
+			String query = " SELECT* FROM EMPLOYEES";
+					 
+			//Execute SQL Query
+			ResultSet rs = stmt.executeQuery(query);
+	 
+			
+			//Display info from Game Table
+	        DefaultTableModel model2 = (DefaultTableModel)table.getModel();
+			
+			 
+			 while (rs.next()) 
+			 {
+				model2.addRow(new String[] {Integer.toString(rs.getInt(1)),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10) });		 
+	 		 } 
+				
+			} catch (SQLException e1) 
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		};
+		
 		refresh.setOnAction((e) -> {
 			//Create a SQL Statement
 			try {
@@ -382,13 +402,16 @@ public class Main extends Application
 			
 		});
 		
+		//--------------------------------CHANGE SCENE-------------------------
+		addStaff.setOnAction(event -> 
+		{
+			primaryStage.setScene(scene2);
+			
+		});
+
 		
  
  	}
-
-
-
-
 
 
 }

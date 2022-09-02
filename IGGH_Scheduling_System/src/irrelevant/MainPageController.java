@@ -1,4 +1,4 @@
-package application;
+package irrelevant;
 
 import javafx.fxml.FXML;
 

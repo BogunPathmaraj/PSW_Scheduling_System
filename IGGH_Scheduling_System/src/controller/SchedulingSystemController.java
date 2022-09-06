@@ -30,7 +30,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class SchedulingSystemController extends Application
@@ -62,6 +66,8 @@ public class SchedulingSystemController extends Application
 		MenuButton scheduleBtn = new MenuButton("Schedule", null, schedule);
 		
 		tool.getItems().addAll(employeeListBtn, scheduleBtn);
+		
+		
 		
 		//--------------TEXTFIELDS-------------------------------------
 		
@@ -185,11 +191,60 @@ public class SchedulingSystemController extends Application
 		//CREATE SCENE
 		Scene main = new Scene(border,1000,500);
 
+		//CREATE SCENE 2--------------------------------------------------------------------
+		BorderPane bPane = new BorderPane();
+		ToolBar tool2 = new ToolBar(tool);
+		GridPane gPane2 = new GridPane();
+		
+		TextField first = new TextField();
+		//.add(variable, column, row)
+		gPane2.add(first, 1, 0);
+		gPane2.add(new Label("First Name: "), 0, 0);
+		
+		TextField last = new TextField();
+		gPane2.add(new Label("Last Name: "), 3, 0);
+		gPane2.add(last, 4, 0);
+	
+		TextField addi = new TextField();
+		gPane2.add(new Label("Address: "), 0, 2);
+		gPane2.add(addi, 1, 2);
+		
+		TextField phoneNum = new TextField();
+		gPane2.add(new Label("Phone Number: "), 3, 2);
+		gPane2.add(phoneNum, 4, 2);
+		
+		
+		TextField avail = new TextField();
+		gPane2.add(new Label("Availability: "), 0, 3);
+		gPane2.add(avail, 1, 3);
+		
+		TextField comp = new TextField();
+		gPane2.add(new Label("Company: "), 3, 3);
+		gPane2.add(comp, 4, 3);
+		
+		TextField uni = new TextField();
+		gPane2.add(new Label("Unionized: "), 0, 4);
+		gPane2.add(uni, 1, 4);
+		
+		TextField shiftPref = new TextField();
+		gPane2.add(new Label("Shift Preference: "), 3, 4);
+		gPane2.add(shiftPref, 4, 4);
+		
+		Button create = new Button("Create Employee");
+		gPane2.add(create, 2, 5);
+		
+		
+		
+		//gPane2.setGridLinesVisible(true);
 	 
-		VBox v1 = new VBox();
-		Button test = new Button("Testing");
-		v1.getChildren().add(test);
-		Scene scene2 = new Scene(v1);
+	 
+		
+		bPane.setTop(tool2);
+		bPane.setCenter(gPane2);
+ ;
+ 		 
+
+		Scene scene2 = new Scene(bPane,800,500);
 		
 		//ADD SCENE TO STAGE
 		primaryStage.setScene(main);
@@ -402,11 +457,64 @@ public class SchedulingSystemController extends Application
 			
 		});
 		
+		
+		//GET THE FIELDS AND SEND TO THE DB BUT ALSO GET THE PREVIOUS ID FROM THE TABLE, and then send ID + 1
+		create.setOnAction(e ->
+		{
+			try 
+			{
+ 				
+				Statement id = conn.createStatement();
+				String query = "SELECT EMPLOYEE_ID FROM EMPLOYEES";
+				
+	 	        ResultSet rs = id.executeQuery(query);
+	 	        
+	 	        int newEmpId = 0;
+	 	        
+	 	        while (rs.next())
+	 	        {
+	
+	 	        	newEmpId = (rs.getInt(1) + 1);
+	 	        }
+		   	 
+	 	        System.out.print(newEmpId);
+	 	        
+	 	        String query2 = "INSERT into EMPLOYEES values (?,?,?,?,?,?,?,?,?,?)";
+	 	        PreparedStatement newEmp = conn.prepareStatement(query2);
+	 	        
+	 	         newEmp.setInt(1, newEmpId );
+	 	         newEmp.setString(2, first.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(3, last.getText().replaceAll("\\s+$", "").toUpperCase() );
+				 newEmp.setString(4, addi.getText().toUpperCase());
+				 newEmp.setString(5, phoneNum.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(6, avail.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(7, comp.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(8,uni.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(9, shiftPref.getText().replaceAll("\\s+$", "").toUpperCase()  );
+				 newEmp.setString(10, "");
+				 
+				  newEmp.executeUpdate();
+  
+			} catch (SQLException e1) 
+			{
+				 e1.printStackTrace();
+			}
+			
+		});
+		
 		//--------------------------------CHANGE SCENE-------------------------
 		addStaff.setOnAction(event -> 
 		{
 			primaryStage.setScene(scene2);
-			
+			primaryStage.setTitle("Add Employee");
+			bPane.setTop(tool);
+		});
+		
+		staffList.setOnAction(event ->
+		{
+ 		 
+			primaryStage.setScene(main);
+			border.setTop(tool);
 		});
 
 		
